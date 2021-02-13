@@ -1,37 +1,31 @@
 <!DOCTYPE html>
 <html>
 <body>
-<canvas id="Cube" width="200" height="200"></canvas>
 
+<canvas id="C" width="200" height="200"></canvas>
 <script>
-var c = document.getElementById("Cube");
-var ctx = c.getContext("2d");
-var a = 0;
-
-var interval = setInterval(function(){
-ctx.clearRect(0, 0, 200, 200);
-if(a>1.56){a=0} else {a=a+0.001}
-ctx.beginPath();
-ctx.moveTo((Math.sin(a)*2.8)*25+100,(Math.cos(a)-2)*25+100);
-ctx.lineTo((-Math.sin(a-1.56)*2.8)*25+100, (-Math.cos(a-1.56)-2)*25+100); ctx.stroke();
-ctx.lineTo((-Math.sin(a)*2.8)*25+100, (-Math.cos(a)-2)*25+100); ctx.stroke();
-ctx.lineTo((Math.sin(a-1.56)*2.8)*25+100, (Math.cos(a-1.56)-2)*25+100); ctx.stroke();
-ctx.lineTo((Math.sin(a)*2.8)*25+100,(Math.cos(a)-2)*25+100); ctx.stroke();
-ctx.moveTo((Math.sin(a)*2.8)*25+100,(Math.cos(a)+2)*25+100);
-ctx.lineTo((-Math.sin(a-1.56)*2.8)*25+100, (-Math.cos(a-1.56)+2)*25+100); ctx.stroke();
-ctx.lineTo((-Math.sin(a)*2.8)*25+100, (-Math.cos(a)+2)*25+100); ctx.stroke();
-ctx.lineTo((Math.sin(a-1.56)*2.8)*25+100, (Math.cos(a-1.56)+2)*25+100); ctx.stroke();
-ctx.lineTo((Math.sin(a)*2.8)*25+100,(Math.cos(a)+2)*25+100); ctx.stroke();
-ctx.moveTo((Math.sin(a)*2.8)*25+100,(Math.cos(a)-2)*25+100);
-ctx.lineTo((Math.sin(a)*2.8)*25+100,(Math.cos(a)+2)*25+100); ctx.stroke();
-ctx.moveTo((-Math.sin(a-1.56)*2.8)*25+100, (-Math.cos(a-1.56)-2)*25+100);
-ctx.lineTo((-Math.sin(a-1.56)*2.8)*25+100, (-Math.cos(a-1.56)+2)*25+100); ctx.stroke();
-ctx.moveTo((-Math.sin(a)*2.8)*25+100, (-Math.cos(a)-2)*25+100);
-ctx.lineTo((-Math.sin(a)*2.8)*25+100, (-Math.cos(a)+2)*25+100); ctx.stroke();
-ctx.moveTo((Math.sin(a-1.56)*2.8)*25+100, (Math.cos(a-1.56)-2)*25+100);
-ctx.lineTo((Math.sin(a-1.56)*2.8)*25+100, (Math.cos(a-1.56)+2)*25+100); ctx.stroke();
-}, 0);
+y=document.getElementById("C")
+z=y.getContext("2d")
+a=0;b=25;c=100;v=1.56
+var interval=setInterval(function(){
+d=Math.sin(a);e=Math.sin(a-v)
+f=Math.cos(a);g=Math.cos(a-v)
+h=d*2.8;i=e*2.8;p=(h)*b+c;q=(i)*b+c;r=(-i)*b+c
+s=(-h)*b+c;t=(-f+2)*b+c;u=(-f-2)*b+c
+function j(){z.lineTo(p,(f-2)*b+c)}
+function k(){z.lineTo(r,(-g-2)*b+c)}
+function l(){z.lineTo(r,(-g+2)*b+c)}
+function m(){z.lineTo(p,(f+2)*b+c)}
+function n(){z.lineTo(q,(g-2)*b+c)}
+function o(){z.lineTo(q,(g+2)*b+c)}
+z.clearRect(0, 0, 200, 200)
+if(a>v){a=0} else {a=a+0.001};z.beginPath()
+j();k();l();m();j();n();o();m();o()
+z.lineTo(s,t);z.lineTo(s,u);n()
+z.moveTo(s,u);k();z.moveTo(s,t)
+l(); z.stroke()});
 </script>
+  
 <h1>Hello!</h1>
 <p>My name's Brendan Scott, I currently don't have much here</p>
 <p>I however, do have more on my github profile page, I assume that you know how to get there.</p>

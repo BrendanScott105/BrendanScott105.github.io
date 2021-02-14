@@ -1,0 +1,15 @@
+﻿<canvas id="L"width="999"height="999"></canvas><script>
+var a=document.getElementById("L");
+var b=a.getContext("2d");
+x=0.01;y=0;z=0;c=10;d=28;e=8/3;t=0.001
+b.strokeStyle = "#FFFFFF";
+var s=setInterval(function(){
+b.clearRect(0,0,999,999)
+b.fillStyle = "#000000";
+b.fillRect(0,0,999,999);
+x+=(c*(y-x))*t;y+=(x*(d-z)-y)*t
+z+=(x*y-e*z)*t
+b.lineTo(x*17+500,y*17+500);
+b.fillStyle = "#00FF00";
+b.fillRect(x*17+495,y*17+495,8,8);b.stroke()});
+</script>

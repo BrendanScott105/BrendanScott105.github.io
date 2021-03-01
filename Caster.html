@@ -1,0 +1,197 @@
+<canvas id="canvas" width="1012" height="512" style="border:1px solid #000000;">
+<script>
+var mapX = 16
+var mapY = 16
+var mapSize = 32
+var map = [
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,  //████████████████████████████████
+1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,  //██            ████            ██
+1,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,  //██  ██    ██  ████            ██
+1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,  //██    ████                    ██
+1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,  //██    ████                    ██
+1,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,  //██  ██    ██  ████            ██
+1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,  //██            ████            ██
+1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,  //██████    ████████████    ██████
+1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,  //██████    ████████████    ██████
+1,0,1,1,0,1,0,1,1,0,0,0,0,0,0,1,  //██  ████  ██  ████            ██
+1,0,1,0,0,0,0,1,1,0,1,1,0,1,0,1,  //██  ██        ████  ████  ██  ██
+1,0,0,0,1,1,0,0,0,0,1,0,0,1,0,1,  //██      ████        ██    ██  ██
+1,1,1,1,1,0,0,0,0,0,1,0,0,1,0,1,  //██████████          ██    ██  ██
+1,0,1,0,1,0,0,1,1,0,1,0,1,1,0,1,  //██  ██  ██  ██████  ██  ████  ██
+1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,  //██            ████            ██
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1   //████████████████████████████████
+];
+
+var DegInRad = 0.0174533
+
+var CanvID = document.getElementById("canvas");
+var ctx = canvas.getContext("2d"); // Get canvas context
+var PlayerX = 384; var PlayerY = 127; // Set initial player X and Y values
+var DeltaX = 0; var DeltaY = 0; var PAngle = 0;
+DeltaX=Math.cos(PAngle)*5; DeltaY=Math.sin(PAngle)*5;
+DrawPlayer()
+
+window.addEventListener('keydown', (event) => { // Detect WASD keypresses
+	if (event.key == 'w'){PlayerX -= DeltaX; PlayerY -= DeltaY;}
+	if (event.key == 's'){PlayerX += DeltaX; PlayerY += DeltaY;}
+	if (event.key == 'a'){
+	PAngle -= 0.1
+	if(PAngle < 0){PAngle += 2*Math.PI}
+	DeltaX=Math.cos(PAngle)*5; 
+	DeltaY=Math.sin(PAngle)*5;
+	}
+	if (event.key == 'd'){
+	PAngle += 0.1
+	if(PAngle > 2*Math.PI){PAngle -= 2*Math.PI}
+	DeltaX=Math.cos(PAngle)*5; 
+	DeltaY=Math.sin(PAngle)*5;}
+});
+var MainLoop = setInterval(function(){
+	ctx.fillStyle = "#888888";
+	ctx.fillRect(0, 0, canvas.width/2, canvas.height);
+	Draw2dMap()
+	Draw3D()
+	DrawPlayer()
+});
+
+function Distance(ax, ay, bx, by, angle){
+	return(Math.sqrt((bx-ax)*(bx-ax) + (by-ay)*(by-ay)));
+}
+
+function Draw3D(){
+	var RayCount;
+	var MapX2; var MapY2;
+	var MapPos; var DOF;
+	var RayX; var RayY;
+	var RayAngle;
+	var Xoff; var YOff;
+	var Dist;
+	RayAngle = PAngle - DegInRad*35;
+	if(RayAngle<0){RayAngle += 2*Math.PI}
+	if(RayAngle>2*Math.PI){RayAngle -= 2*Math.PI}
+	for(RayCount = 0; RayCount < 500; RayCount++){
+		//Horizontal
+		DOF = 0;
+		var DistH = 100000;var Hx=PlayerX; var Hy = PlayerY;
+		var aTan = (-1/Math.tan(RayAngle));
+		if(RayAngle < Math.PI){ // Looking up
+			RayY = ((Math.floor(PlayerY/32))*32)-0.0001;
+			RayX = (PlayerY - RayY)*aTan+PlayerX;
+			YOff = -32;
+			XOff = -YOff*aTan;
+		}
+		if(RayAngle > Math.PI){ // Looking down
+			RayY = ((Math.floor(PlayerY/32))*32)+32;
+			RayX = (PlayerY - RayY)*aTan+PlayerX;
+			YOff = 32;
+			XOff = -YOff*aTan;
+		}
+		if (RayAngle == 0 || RayAngle == Math.PI){ // Left or right
+		RayX = PlayerX;
+		RayY = PlayerY;
+		DOF = 8;
+		}
+		while(DOF < 80) {
+			MapX2 = Math.floor(RayX/32);
+			MapY2 = Math.floor(RayY/32);
+			MapPos = MapY2*mapX+MapX2;
+			if(MapPos > 0 && MapPos < mapX * mapY && map[MapPos] == 1){ // If wall hit
+				DOF = 80;
+				Hx = RayX;
+				Hy = RayY;
+				DistH = Distance(PlayerX, PlayerY, Hx, Hy, RayAngle)
+			} else {
+				RayX += XOff;
+				RayY += YOff;
+				DOF += 1;
+			}
+		}
+		//Vertical
+		DOF = 0;
+		var DistV = 100000;var Vx=PlayerX; var Vy = PlayerY;
+		var nTan = (-Math.tan(RayAngle));
+		if(RayAngle < (Math.PI/2) || RayAngle > 3*(Math.PI/2)){ // Looking left
+			RayX = ((Math.floor(PlayerX/32))*32)-0.0001;
+			RayY = (PlayerX - RayX)*nTan+PlayerY;
+			XOff = -32;
+			YOff = -XOff*nTan;
+		}
+		if(RayAngle > (Math.PI/2) && RayAngle < 3*(Math.PI/2)){ // Looking right
+			RayX = ((Math.floor(PlayerX/32))*32)+32;
+			RayY = (PlayerX - RayX)*nTan+PlayerY;
+			XOff = 32;
+			YOff = -XOff*nTan;
+		}
+		if (RayAngle == 0 || RayAngle == Math.PI){ // Up or Down
+		RayX = PlayerX;
+		RayY = PlayerY;
+		DOF = 8;
+		}
+		while(DOF < 80) {
+			MapX2 = Math.floor(RayX/32);
+			MapY2 = Math.floor(RayY/32);
+			MapPos = MapY2*mapX+MapX2;
+			if(MapPos > 0 && MapPos < mapX * mapY && map[MapPos] == 1){ // If wall hit
+				DOF = 80;
+				Vx = RayX;
+				Vy = RayY;
+				DistV = Distance(PlayerX, PlayerY, Vx, Vy, RayAngle)
+			} else {
+				RayX += XOff;
+				RayY += YOff;
+				DOF += 1;
+			}
+		}
+		ctx.beginPath();
+		if(DistV < DistH){RayX = Vx; RayY = Vy; Dist = DistV; ctx.strokeStyle = "#FF0000";}
+		if(DistH < DistV){RayX = Hx; RayY = Hy; Dist = DistH; ctx.strokeStyle = "#990000";}
+		ctx.moveTo(PlayerX, PlayerY);
+		ctx.lineTo(RayX, RayY);
+		//Draw 3d area
+		var CounterFisheye=PAngle-RayAngle;
+		if(CounterFisheye<0){CounterFisheye += 2*Math.PI}
+		if(CounterFisheye>2*Math.PI){CounterFisheye -= 2*Math.PI}
+		Dist=Dist*Math.cos(CounterFisheye); // Fix fisheye effect
+		var LineHeight = (mapSize * 256)/Dist;
+		if (LineHeight > 512){LineHeight = 512}
+		RayAngle += DegInRad/7.31428571;
+		ctx.moveTo(RayCount+512, 256-(LineHeight/2));
+		ctx.lineTo(RayCount+512, 256+(LineHeight/2));
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.strokeStyle = "#00AA00";
+		ctx.moveTo(RayCount+512, 0);
+		ctx.lineTo(RayCount+512, 256-(LineHeight/2)-1);
+		ctx.stroke();
+		ctx.beginPath();
+		ctx.strokeStyle = "#0000AA";
+		ctx.moveTo(RayCount+512, 512);
+		ctx.lineTo(RayCount+512, 256+(LineHeight/2)+1);
+		ctx.stroke();
+		if(RayAngle<0){RayAngle += 2*Math.PI}
+		if(RayAngle>2*Math.PI){RayAngle -= 2*Math.PI}
+	}
+}
+
+function DrawPlayer(){ // Function to draw the player on the canvas
+	ctx.fillStyle = "#FFFF00";
+	ctx.strokeStyle = "#00FF00";
+    ctx.fillRect(PlayerX-4, PlayerY-4, 8, 8);
+	ctx.beginPath();
+	ctx.moveTo(PlayerX, PlayerY);
+	ctx.lineTo(PlayerX-DeltaX*5, PlayerY-DeltaY*5);
+	ctx.stroke();
+}
+
+function Draw2dMap(){
+	var y; var x;
+	for (y = 0; y < mapY; y++){
+		for (x = 0; x < mapX; x++){
+			if(map[y*mapX+x] == 1) {
+			ctx.fillStyle = "#FFFFFF";
+			} else {ctx.fillStyle = "#000000";}
+			ctx.fillRect(x*mapSize, y*mapSize, 31, 31);
+		}
+	}
+}
+</script>
